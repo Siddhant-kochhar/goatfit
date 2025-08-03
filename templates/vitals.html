@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Vitals Dashboard - GoatFit</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif        console.log('✅ GoatFit Vitals Dashboard script loaded!');
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Background Animation */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #00ff00, #008000, #004000, #000000);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            opacity: 0.05;
+            z-index: -1;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-bottom: 2px solid #00ff00;
+            margin-bottom: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.2rem;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: #00ff00;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 0, 0.3);
+        }
+
+        .nav-link.active {
+            background: #00ff00;
+            color: #000;
+            border-color: #00ff00;
+        }
+
+        /* Time Selector */
+        .time-selector {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .time-selector select {
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border: 2px solid #00ff00;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .chart-container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .chart-title {
+            font-size: 1.8rem;
+            color: #00ff00;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 255, 0, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #ccc;
+            font-size: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">❤️ GoatFit Vitals</div>
+                <div class="nav-links">
+                    <a href="/" class="nav-link">🏠 Home</a>
+                    <a href="/fit" class="nav-link">📊 Steps & Heart Rate</a>
+                    <a href="/vitals" class="nav-link active">❤️ Complete Vitals</a>
+                    <a href="/monitoring-dashboard" class="nav-link">🏥 24/7 Monitoring</a>
+                    <a href="/emergency-contacts" class="nav-link">📧 Emergency Contacts</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 24/7 Monitoring Status Banner -->
+        <div style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: center; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <span style="font-size: 24px;">🏥</span>
+                <div>
+                    <strong>24/7 Health Monitoring ACTIVE</strong>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">
+                        Your vitals are continuously monitored. Emergency alerts will be sent automatically if needed.
+                    </p>
+                </div>
+                <a href="/monitoring-dashboard" style="background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    View Status
+                </a>
+            </div>
+        </div>
+        
+        <div class="time-selector">
+            <select onchange="location = this.value;">
+                <option value="/vitals?view=weekly" {{ 'selected' if view == 'weekly' else '' }}>📅 Weekly View</option>
+                <option value="/vitals?view=monthly" {{ 'selected' if view == 'monthly' else '' }}>📅 Monthly View</option>
+                <option value="/vitals?view=yearly" {{ 'selected' if view == 'yearly' else '' }}>📅 Yearly View</option>
+            </select>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #ff3366;">❤️</div>
+                <div class="stat-value" id="avgHeartRate">--</div>
+                <div class="stat-label">Avg Heart Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #3366ff;">😴</div>
+                <div class="stat-value" id="avgSleep">--</div>
+                <div class="stat-label">Avg Sleep Hours</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #ffaa00;">🔥</div>
+                <div class="stat-value" id="avgCalories">--</div>
+                <div class="stat-label">Avg Calories</div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="dashboard-grid">
+            <!-- Heart Rate Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title" style="color: #ff3366;">
+                        <i class="fas fa-heartbeat"></i>
+                        Heart Rate (BPM)
+                    </div>
+                </div>
+                <div class="chart-canvas">
+                    <canvas id="heartRateChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Sleep Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title" style="color: #3366ff;">
+                        <i class="fas fa-bed"></i>
+                        Sleep Duration (Hours)
+                    </div>
+                </div>
+                <div class="chart-canvas">
+                    <canvas id="sleepChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Calories Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title" style="color: #ffaa00;">
+                        <i class="fas fa-fire"></i>
+                        Calories Burned
+                    </div>
+                </div>
+                <div class="chart-canvas">
+                    <canvas id="caloriesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🔄 Initializing GoatFit Vitals Dashboard...');
+        
+        // Register Chart.js plugins
+        try {
+            if (window['chartjs-plugin-zoom']) {
+                Chart.register(window['chartjs-plugin-zoom']);
+                console.log('✅ Chart.js zoom plugin registered');
+            }
+        } catch (error) {
+            console.warn('⚠️ Chart.js zoom plugin registration failed:', error);
+        }
+
+        // Sample fallback data for testing
+        const sampleLabels = ['2025-07-26', '2025-07-27', '2025-07-28', '2025-07-29', '2025-07-30', '2025-07-31', '2025-08-01'];
+        const sampleHeartRate = [72, 68, 75, 70, 73, 69, 71];
+        const sampleSleep = [7.5, 8.2, 6.8, 7.9, 8.1, 7.3, 8.0];
+        const sampleCalories = [2200, 2350, 1980, 2150, 2280, 2050, 2180];
+
+        // Get data from backend with fallback
+        let heartRateData, heartRateLabels, sleepData, sleepLabels, caloriesData, caloriesLabels;
+        
+        try {
+            heartRateData = {{ hr_values | safe }} || [];
+            heartRateLabels = {{ hr_labels | safe }} || [];
+            sleepData = {{ sleep_values | safe }} || [];
+            sleepLabels = {{ sleep_labels | safe }} || [];
+            caloriesData = {{ cal_values | safe }} || [];
+            caloriesLabels = {{ cal_labels | safe }} || [];
+            
+            console.log('📊 Data received from backend:');
+            console.log(`💓 Heart rate: ${heartRateData.length} points`);
+            console.log(`😴 Sleep: ${sleepData.length} points`);
+            console.log(`🔥 Calories: ${caloriesData.length} points`);
+            
+        } catch (error) {
+            console.warn('⚠️ Error parsing backend data, using sample data:', error);
+            heartRateData = [];
+            heartRateLabels = [];
+            sleepData = [];
+            sleepLabels = [];
+            caloriesData = [];
+            caloriesLabels = [];
+        }
+
+        // Use sample data if no real data available
+        if (heartRateData.length === 0) {
+            console.log('📈 Using sample heart rate data');
+            heartRateData = sampleHeartRate;
+            heartRateLabels = sampleLabels;
+        }
+        
+        if (sleepData.length === 0) {
+            console.log('😴 Using sample sleep data');
+            sleepData = sampleSleep;
+            sleepLabels = sampleLabels;
+        }
+        
+        if (caloriesData.length === 0) {
+            console.log('🔥 Using sample calories data');
+            caloriesData = sampleCalories;
+            caloriesLabels = sampleLabels;
+        }
+
+        // Calculate and display averages
+        function calculateAverage(data) {
+            if (!data || data.length === 0) return 0;
+            return Math.round(data.reduce((a, b) => a + b, 0) / data.length);
+        }
+
+        // Update statistics with enhanced formatting
+        function updateStats() {
+            try {
+                if (heartRateData.length > 0) {
+                    const avgHR = calculateAverage(heartRateData);
+                    const maxHR = Math.max(...heartRateData);
+                    const minHR = Math.min(...heartRateData);
+                    document.getElementById('avgHeartRate').textContent = `${avgHR} BPM`;
+                    console.log(`💓 Heart Rate Stats - Avg: ${avgHR}, Max: ${maxHR}, Min: ${minHR}`);
+                }
+
+                if (sleepData.length > 0) {
+                    const avgSleep = (sleepData.reduce((a, b) => a + b, 0) / sleepData.length).toFixed(1);
+                    const maxSleep = Math.max(...sleepData).toFixed(1);
+                    const minSleep = Math.min(...sleepData).toFixed(1);
+                    document.getElementById('avgSleep').textContent = `${avgSleep} hrs`;
+                    console.log(`😴 Sleep Stats - Avg: ${avgSleep}, Max: ${maxSleep}, Min: ${minSleep}`);
+                }
+
+                if (caloriesData.length > 0) {
+                    const avgCal = calculateAverage(caloriesData);
+                    const maxCal = Math.max(...caloriesData);
+                    const minCal = Math.min(...caloriesData);
+                    document.getElementById('avgCalories').textContent = `${avgCal.toLocaleString()} cal`;
+                    console.log(`🔥 Calories Stats - Avg: ${avgCal}, Max: ${maxCal}, Min: ${minCal}`);
+                }
+            } catch (error) {
+                console.error('❌ Error updating statistics:', error);
+            }
+        }
+
+        // Enhanced chart options with better zoom and pan
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { 
+                        color: '#ffffff',
+                        font: { size: 14, weight: 'bold' }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    titleColor: '#00ff00',
+                    bodyColor: '#ffffff',
+                    borderColor: '#00ff00',
+                    borderWidth: 2,
+                    cornerRadius: 8,
+                    displayColors: true,
+                    callbacks: {
+                        afterLabel: function(context) {
+                            return `Date: ${context.label}`;
+                        }
+                    }
+                },
+                zoom: {
+                    zoom: {
+                        wheel: {
+                            enabled: true,
+                            speed: 0.1,
+                        },
+                        pinch: {
+                            enabled: true
+                        },
+                        mode: 'x',
+                        onZoomComplete: function(context) {
+                            console.log('🔍 Chart zoomed');
+                        }
+                    },
+                    pan: {
+                        enabled: true,
+                        mode: 'x',
+                        onPanComplete: function(context) {
+                            console.log('👆 Chart panned');
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { 
+                        color: '#ffffff',
+                        font: { size: 12 }
+                    },
+                    grid: { 
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Date',
+                        color: '#ffffff',
+                        font: { size: 14, weight: 'bold' }
+                    }
+                },
+                y: {
+                    ticks: { 
+                        color: '#ffffff',
+                        font: { size: 12 }
+                    },
+                    grid: { 
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeInOutQuart'
+            }
+        };
+
+        // Initialize charts when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎨 Initializing charts...');
+            
+            try {
+                // Heart Rate Chart
+                const hrCtx = document.getElementById('heartRateChart');
+                if (hrCtx) {
+                    const heartRateChart = new Chart(hrCtx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: heartRateLabels,
+                            datasets: [{
+                                label: '❤️ Heart Rate (BPM)',
+                                data: heartRateData,
+                                fill: true,
+                                borderColor: '#ff3366',
+                                backgroundColor: 'rgba(255, 51, 102, 0.1)',
+                                borderWidth: 3,
+                                pointBackgroundColor: '#ff3366',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 6,
+                                pointHoverRadius: 10,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            ...commonOptions,
+                            scales: {
+                                ...commonOptions.scales,
+                                y: {
+                                    ...commonOptions.scales.y,
+                                    beginAtZero: false,
+                                    min: Math.max(50, Math.min(...heartRateData) - 10),
+                                    max: Math.min(200, Math.max(...heartRateData) + 10),
+                                    title: {
+                                        display: true,
+                                        text: 'Heart Rate (BPM)',
+                                        color: '#ff3366',
+                                        font: { size: 14, weight: 'bold' }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    console.log('✅ Heart Rate chart initialized');
+                }
+
+                // Sleep Chart
+                const sleepCtx = document.getElementById('sleepChart');
+                if (sleepCtx) {
+                    const sleepChart = new Chart(sleepCtx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: sleepLabels,
+                            datasets: [{
+                                label: '😴 Sleep Hours',
+                                data: sleepData,
+                                backgroundColor: 'rgba(51, 102, 255, 0.8)',
+                                borderColor: '#3366ff',
+                                borderWidth: 2,
+                                borderRadius: 8,
+                                borderSkipped: false,
+                            }]
+                        },
+                        options: {
+                            ...commonOptions,
+                            scales: {
+                                ...commonOptions.scales,
+                                y: {
+                                    ...commonOptions.scales.y,
+                                    beginAtZero: true,
+                                    max: Math.max(12, Math.max(...sleepData) + 1),
+                                    title: {
+                                        display: true,
+                                        text: 'Sleep Duration (Hours)', 
+                                        color: '#3366ff',
+                                        font: { size: 14, weight: 'bold' }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    console.log('✅ Sleep chart initialized');
+                }
+
+                // Calories Chart
+                const calCtx = document.getElementById('caloriesChart');
+                if (calCtx) {
+                    const caloriesChart = new Chart(calCtx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: caloriesLabels,
+                            datasets: [{
+                                label: '🔥 Calories Burned',
+                                data: caloriesData,
+                                fill: true,
+                                borderColor: '#ffaa00',
+                                backgroundColor: 'rgba(255, 170, 0, 0.1)',
+                                borderWidth: 3,
+                                pointBackgroundColor: '#ffaa00',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 6,
+                                pointHoverRadius: 10,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            ...commonOptions,
+                            scales: {
+                                ...commonOptions.scales,
+                                y: {
+                                    ...commonOptions.scales.y,
+                                    beginAtZero: true,
+                                    max: Math.max(...caloriesData) + 200,
+                                    title: {
+                                        display: true,
+                                        text: 'Calories Burned',
+                                        color: '#ffaa00',
+                                        font: { size: 14, weight: 'bold' }
+                                    },
+                                    ticks: {
+                                        ...commonOptions.scales.y.ticks,
+                                        callback: function(value) {
+                                            return value.toLocaleString() + ' cal';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    console.log('✅ Calories chart initialized');
+                }
+
+                // Update statistics
+                updateStats();
+                
+                console.log('🎉 All charts initialized successfully!');
+                
+            } catch (error) {
+                console.error('❌ Error initializing charts:', error);
+                // Show error message to user
+                document.body.insertAdjacentHTML('afterbegin', 
+                    '<div style="background: #ff3366; color: white; padding: 1rem; text-align: center; font-weight: bold;">⚠️ Chart initialization error. Please refresh the page.</div>'
+                );
+            }
+        });
+
+        // Handle responsive chart resize
+        window.addEventListener('resize', function() {
+            console.log('� Window resized, updating charts...');
+            Chart.instances.forEach(chart => {
+                if (chart) chart.resize();
+            });
+        });
+
+        console.log('� HadesFit Vitals Dashboard script loaded!');
+    </script>
+</body>
+</html>

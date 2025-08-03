@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoatFit - Automated Health Monitoring</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000, #1a1a1a);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 51, 102, 0.1);
+            border-radius: 15px;
+            border: 2px solid #ff3366;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #ff3366;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #ccc;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #333;
+            transition: all 0.3s ease;
+        }
+
+        .status-card:hover {
+            border-color: #00ff88;
+            transform: translateY(-5px);
+        }
+
+        .status-card.active {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .status-card.inactive {
+            border-color: #ff3366;
+            background: rgba(255, 51, 102, 0.1);
+        }
+
+        .status-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .status-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-value {
+            font-size: 1.1em;
+            color: #ccc;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #333;
+            margin-bottom: 30px;
+        }
+
+        .control-section {
+            margin-bottom: 30px;
+        }
+
+        .control-section h3 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: #000;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #ff3366, #ff1744);
+            color: #fff;
+        }
+
+        .btn-stop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.3);
+        }
+
+        .btn-update {
+            background: linear-gradient(135deg, #ffaa00, #ff8800);
+            color: #000;
+        }
+
+        .btn-update:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 170, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .emergency-contacts {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #333;
+            margin-bottom: 30px;
+        }
+
+        .contact-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .contact-email {
+            color: #ccc;
+            font-size: 0.9em;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .status-active {
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        .status-inactive {
+            background: #666;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .alert-error {
+            background: rgba(255, 51, 102, 0.2);
+            border: 2px solid #ff3366;
+            color: #ff3366;
+        }
+
+        .alert-warning {
+            background: rgba(255, 170, 0, 0.2);
+            border: 2px solid #ffaa00;
+            color: #ffaa00;
+        }
+
+        .monitoring-log {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-left: 3px solid #00ff88;
+            padding-left: 10px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #00ff88;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Dashboard</a>
+        
+        <div class="header">
+            <h1>🤖 Automated Health Monitoring</h1>
+            <p>Real-time vital sign monitoring with automatic emergency alerts</p>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <!-- Status Grid -->
+        <div class="status-grid">
+            <div class="status-card" id="monitoring-status">
+                <span class="status-icon">🏥</span>
+                <div class="status-title">Monitoring Status</div>
+                <div class="status-value">
+                    <span class="status-indicator" id="status-indicator"></span>
+                    <span id="monitoring-text">Checking...</span>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <span class="status-icon">📧</span>
+                <div class="status-title">Emergency Contacts</div>
+                <div class="status-value">{{ total_contacts }} contacts configured</div>
+            </div>
+
+            <div class="status-card">
+                <span class="status-icon">⏰</span>
+                <div class="status-title">Check Interval</div>
+                <div class="status-value" id="check-interval">{{ check_interval // 60 }} minutes</div>
+            </div>
+
+            <div class="status-card">
+                <span class="status-icon">🧠</span>
+                <div class="status-title">AI Analysis</div>
+                <div class="status-value" id="ai-status">Enabled</div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="control-section">
+                <h3>🚀 Monitoring Control</h3>
+                
+                <form id="monitoring-form">
+                    <div class="ai-info-card" style="background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 24px;">🏥</span>
+                            <div>
+                                <h4 style="margin: 0; color: white;">24/7 Automatic Health Monitoring</h4>
+                                <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Your health is continuously monitored. Emergency alerts are sent automatically.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-info" style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #28a745;">
+                        <h4 style="color: #28a745; margin: 0 0 10px 0;">🟢 System Status: ACTIVE</h4>
+                        <p style="margin: 0; color: #6c757d;">
+                            Your health is being monitored 24/7. If your heart rate exceeds safe thresholds, 
+                            emergency alerts will be automatically sent to your emergency contacts.
+                        </p>
+                        <br>
+                        <p style="margin: 0; font-size: 14px; color: #6c757d;">
+                            <strong>How it works:</strong> Simply visit your vitals page to register for monitoring. 
+                            No manual start/stop needed - the system works automatically in the background.
+                        </p>
+                    </div>
+                        🚀 Start Automated Monitoring
+                    </button>
+                    
+                    <button type="button" id="stop-btn" class="btn btn-stop" disabled>
+                        🛑 Stop Monitoring
+                    </button>
+                </form>
+            </div>
+
+            <div class="control-section">
+                <h3>⚙️ Settings</h3>
+                
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label for="check-interval-input">Check Interval:</label>
+                        <select id="check-interval-input" name="check_interval">
+                            <option value="60">1 minute (Testing)</option>
+                            <option value="300" selected>5 minutes (Default)</option>
+                            <option value="600">10 minutes</option>
+                            <option value="900">15 minutes</option>
+                            <option value="1800">30 minutes</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-update">
+                        💾 Update Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Emergency Contacts -->
+        <div class="emergency-contacts">
+            <h3>📧 Emergency Contacts Being Monitored</h3>
+            {% if contacts %}
+                {% for contact in contacts %}
+                <div class="contact-item">
+                    <div class="contact-info">
+                        <div class="contact-name">{{ contact.name }}</div>
+                        <div class="contact-email">{{ contact.email }}</div>
+                    </div>
+                    <div style="color: #00ff88;">✅ Active</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning">
+                    ⚠️ No emergency contacts configured. 
+                    <a href="/emergency-contacts" style="color: #ffaa00;">Add contacts here</a> 
+                    before starting monitoring.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Monitoring Log -->
+        <div class="emergency-contacts">
+            <h3>📊 System Log</h3>
+            <div class="monitoring-log" id="monitoring-log">
+                <div class="log-entry">🏥 System initialized and ready</div>
+                <div class="log-entry">📧 Emergency contacts loaded: {{ total_contacts }}</div>
+                <div class="log-entry">⏰ Check interval: {{ check_interval // 60 }} minutes</div>
+                <div class="log-entry">🚀 Ready to start automated monitoring</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let monitoringActive = false;
+        let statusCheckInterval;
+
+        // DOM Elements
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const statusIndicator = document.getElementById('status-indicator');
+        const monitoringText = document.getElementById('monitoring-text');
+        const monitoringStatus = document.getElementById('monitoring-status');
+        const alertContainer = document.getElementById('alert-container');
+        const monitoringLog = document.getElementById('monitoring-log');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkMonitoringStatus();
+            startStatusUpdates();
+        });
+
+        // Start monitoring
+        startBtn.addEventListener('click', async function() {
+            startBtn.disabled = true;
+            startBtn.textContent = '🚀 Starting...';
+            
+            try {
+                const response = await fetch('/start-monitoring', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                    updateMonitoringStatus(true);
+                    addLogEntry('🚀 Automated monitoring started successfully');
+                    
+                    if (result.details) {
+                        addLogEntry(`👤 Monitoring user: ${result.details.user}`);
+                        addLogEntry(`📧 Contacts: ${result.details.contacts_monitoring}`);
+                        addLogEntry(`⏰ Interval: ${result.details.check_interval}`);
+                        addLogEntry(`🧠 AI Analysis: ${result.details.ai_analysis}`);
+                    }
+                } else {
+                    showAlert('error', result.message);
+                    startBtn.disabled = false;
+                    startBtn.textContent = '🚀 Start Automated Monitoring';
+                }
+                
+            } catch (error) {
+                showAlert('error', 'Failed to start monitoring: ' + error.message);
+                startBtn.disabled = false;
+                startBtn.textContent = '🚀 Start Automated Monitoring';
+            }
+        });
+
+        // Stop monitoring
+        stopBtn.addEventListener('click', async function() {
+            stopBtn.disabled = true;
+            stopBtn.textContent = '🛑 Stopping...';
+            
+            try {
+                const response = await fetch('/stop-monitoring', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                    updateMonitoringStatus(false);
+                    addLogEntry('🛑 Automated monitoring stopped');
+                } else {
+                    showAlert('error', result.message);
+                }
+                
+                stopBtn.disabled = false;
+                stopBtn.textContent = '🛑 Stop Monitoring';
+                
+            } catch (error) {
+                showAlert('error', 'Failed to stop monitoring: ' + error.message);
+                stopBtn.disabled = false;
+                stopBtn.textContent = '🛑 Stop Monitoring';
+            }
+        });
+
+        // Update settings
+        document.getElementById('settings-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/update-monitoring-settings', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                    addLogEntry('⚙️ Settings updated successfully');
+                    
+                    // Update UI
+                    const intervalMinutes = result.settings.check_interval_minutes;
+                    document.getElementById('check-interval').textContent = intervalMinutes + ' minutes';
+                    document.getElementById('ai-status').textContent = 'Enabled';
+                } else {
+                    showAlert('error', result.message);
+                }
+                
+            } catch (error) {
+                showAlert('error', 'Failed to update settings: ' + error.message);
+            }
+        });
+
+        // Check monitoring status
+        async function checkMonitoringStatus() {
+            try {
+                const response = await fetch('/monitoring-status');
+                const status = await response.json();
+                
+                updateMonitoringStatus(status.monitoring_active);
+                
+            } catch (error) {
+                console.error('Failed to check monitoring status:', error);
+            }
+        }
+
+        // Update monitoring status display
+        function updateMonitoringStatus(active) {
+            monitoringActive = active;
+            
+            if (active) {
+                statusIndicator.className = 'status-indicator status-active';
+                monitoringText.textContent = 'Active - Monitoring your health';
+                monitoringStatus.className = 'status-card active';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                startBtn.textContent = '✅ Monitoring Active';
+            } else {
+                statusIndicator.className = 'status-indicator status-inactive';
+                monitoringText.textContent = 'Inactive - Click start to begin';
+                monitoringStatus.className = 'status-card inactive';
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                startBtn.textContent = '🚀 Start Automated Monitoring';
+            }
+        }
+
+        // Show alert message
+        function showAlert(type, message) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.animation = 'fadeIn 0.3s ease';
+            
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        alert.parentNode.removeChild(alert);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // Add log entry
+        function addLogEntry(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            monitoringLog.appendChild(logEntry);
+            monitoringLog.scrollTop = monitoringLog.scrollHeight;
+        }
+
+        // Start periodic status updates
+        function startStatusUpdates() {
+            statusCheckInterval = setInterval(checkMonitoringStatus, 30000); // Check every 30 seconds
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+            }
+        });
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

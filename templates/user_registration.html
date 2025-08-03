@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration - GoatFit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+        }
+        .registration-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .registration-header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .registration-form {
+            padding: 40px;
+        }
+        .form-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #007bff;
+        }
+        .form-section h4 {
+            color: #007bff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+        .btn-register {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 40px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .emergency-contact-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #dee2e6;
+        }
+        .add-contact-btn {
+            background: linear-gradient(135deg, #17a2b8, #007bff);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            transition: all 0.3s;
+        }
+        .remove-contact-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: white;
+            font-size: 12px;
+        }
+        .health-threshold-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .threshold-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .threshold-item label {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .alert-info {
+            background: linear-gradient(135deg, #17a2b8, #007bff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="registration-container">
+            <!-- Header -->
+            <div class="registration-header">
+                <h1><i class="fas fa-heartbeat"></i> Welcome to GoatFit</h1>
+                <p class="mb-0">Complete your registration to enable 24/7 health monitoring</p>
+            </div>
+
+            <!-- Registration Form -->
+            <div class="registration-form">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>First Time Setup:</strong> Please fill out your information to enable automatic health monitoring and emergency alerts.
+                </div>
+
+                <form method="POST" action="/register" id="registrationForm">
+                    <!-- Personal Information Section -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-user"></i> Personal Information</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{ user_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email Address *</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ user_email }}" readonly>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       placeholder="+1 (555) 123-4567">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="age" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="age" name="age" 
+                                       min="13" max="120" placeholder="25">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contacts Section -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-phone-alt"></i> Emergency Contacts</h4>
+                        <p class="text-muted">Add at least one emergency contact who will receive alerts if health issues are detected.</p>
+                        
+                        <div id="emergencyContacts">
+                            <!-- Initial Contact -->
+                            <div class="emergency-contact-item" data-contact="0">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Emergency Contact #1</h6>
+                                    <button type="button" class="remove-contact-btn" onclick="removeContact(0)" style="display: none;">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Contact Name *</label>
+                                        <input type="text" class="form-control" name="contact_name_0" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Email Address *</label>
+                                        <input type="email" class="form-control" name="contact_email_0" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Relationship</label>
+                                        <select class="form-control" name="contact_relationship_0">
+                                            <option value="Family">Family</option>
+                                            <option value="Friend">Friend</option>
+                                            <option value="Doctor">Doctor</option>
+                                            <option value="Caregiver">Caregiver</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="add-contact-btn mt-3" onclick="addEmergencyContact()">
+                            <i class="fas fa-plus"></i> Add Another Contact
+                        </button>
+                    </div>
+
+                    <!-- Health Monitoring Preferences -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-heart"></i> Health Monitoring Preferences</h4>
+                        <p class="text-muted">Set your personal thresholds for health alerts. These can be customized based on your health profile.</p>
+                        
+                        <div class="health-threshold-grid">
+                            <div class="threshold-item">
+                                <label for="high_hr_warning">High Heart Rate Warning</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="high_hr_warning" 
+                                           name="high_hr_warning" value="60" min="30" max="200">
+                                    <span class="input-group-text">BPM</span>
+                                </div>
+                            </div>
+                            <div class="threshold-item">
+                                <label for="high_hr_critical">High Heart Rate Critical</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="high_hr_critical" 
+                                           name="high_hr_critical" value="60" min="30" max="220">
+                                    <span class="input-group-text">BPM</span>
+                                </div>
+                            </div>
+                            <div class="threshold-item">
+                                <label for="low_hr_warning">Low Heart Rate Warning</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="low_hr_warning" 
+                                           name="low_hr_warning" value="60" min="30" max="80">
+                                    <span class="input-group-text">BPM</span>
+                                </div>
+                            </div>
+                            <div class="threshold-item">
+                                <label for="low_hr_critical">Low Heart Rate Critical</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="low_hr_critical" 
+                                           name="low_hr_critical" value="60" min="20" max="60">
+                                    <span class="input-group-text">BPM</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monitoring Agreement -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-shield-alt"></i> Monitoring Agreement</h4>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="enable_monitoring" 
+                                   name="enable_monitoring" checked required>
+                            <label class="form-check-label" for="enable_monitoring">
+                                <strong>Enable 24/7 Health Monitoring</strong><br>
+                                <small class="text-muted">I agree to continuous monitoring of my health data and automatic emergency alerts when thresholds are exceeded.</small>
+                            </label>
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="data_consent" 
+                                   name="data_consent" required>
+                            <label class="form-check-label" for="data_consent">
+                                <strong>Data Processing Consent</strong><br>
+                                <small class="text-muted">I consent to the processing of my health data for monitoring and emergency alert purposes.</small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success btn-register btn-lg">
+                            <i class="fas fa-rocket"></i> Complete Registration & Start Monitoring
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let contactCount = 1;
+
+        function addEmergencyContact() {
+            const contactsDiv = document.getElementById('emergencyContacts');
+            const contactHtml = `
+                <div class="emergency-contact-item" data-contact="${contactCount}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Emergency Contact #${contactCount + 1}</h6>
+                        <button type="button" class="remove-contact-btn" onclick="removeContact(${contactCount})">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">Contact Name *</label>
+                            <input type="text" class="form-control" name="contact_name_${contactCount}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Email Address *</label>
+                            <input type="email" class="form-control" name="contact_email_${contactCount}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Relationship</label>
+                            <select class="form-control" name="contact_relationship_${contactCount}">
+                                <option value="Family">Family</option>
+                                <option value="Friend">Friend</option>
+                                <option value="Doctor">Doctor</option>
+                                <option value="Caregiver">Caregiver</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+            contactsDiv.insertAdjacentHTML('beforeend', contactHtml);
+            contactCount++;
+            
+            // Show remove buttons for all contacts except the first one
+            updateRemoveButtons();
+        }
+
+        function removeContact(contactIndex) {
+            const contactDiv = document.querySelector(`[data-contact="${contactIndex}"]`);
+            if (contactDiv) {
+                contactDiv.remove();
+                updateContactNumbers();
+                updateRemoveButtons();
+            }
+        }
+
+        function updateContactNumbers() {
+            const contacts = document.querySelectorAll('.emergency-contact-item');
+            contacts.forEach((contact, index) => {
+                const header = contact.querySelector('h6');
+                header.textContent = `Emergency Contact #${index + 1}`;
+            });
+        }
+
+        function updateRemoveButtons() {
+            const contacts = document.querySelectorAll('.emergency-contact-item');
+            const removeButtons = document.querySelectorAll('.remove-contact-btn');
+            
+            removeButtons.forEach((button, index) => {
+                if (contacts.length > 1) {
+                    button.style.display = 'inline-block';
+                } else {
+                    button.style.display = 'none';
+                }
+            });
+        }
+
+        // Form validation
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            const contacts = document.querySelectorAll('.emergency-contact-item');
+            if (contacts.length === 0) {
+                e.preventDefault();
+                alert('Please add at least one emergency contact.');
+                return false;
+            }
+            
+            // Validate heart rate thresholds
+            const highWarning = parseInt(document.getElementById('high_hr_warning').value);
+            const highCritical = parseInt(document.getElementById('high_hr_critical').value);
+            const lowWarning = parseInt(document.getElementById('low_hr_warning').value);
+            const lowCritical = parseInt(document.getElementById('low_hr_critical').value);
+            
+            if (highCritical <= highWarning) {
+                e.preventDefault();
+                alert('High Heart Rate Critical must be higher than High Heart Rate Warning.');
+                return false;
+            }
+            
+            if (lowWarning <= lowCritical) {
+                e.preventDefault();
+                alert('Low Heart Rate Warning must be higher than Low Heart Rate Critical.');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

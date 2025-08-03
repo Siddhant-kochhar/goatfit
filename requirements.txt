@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+jinja2
+python-multipart
+itsdangerous
+starlette
+requests
+google-auth-oauthlib
+google-auth
+google-api-python-client
+matplotlib
+python-dotenv
+pymongo
+motor
