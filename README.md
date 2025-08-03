@@ -1,7 +1,7 @@
 # 🏥 GoatFit - Your Personal Health Guardian
 
 <p align="center">
-  <img src="GoatFit.png" alt="GoatFit Logo" width="150"/>
+  <img src="GoatFit.png" alt="GoatFit Logo" width="300"/>
 </p>
 
 <p align="center">
