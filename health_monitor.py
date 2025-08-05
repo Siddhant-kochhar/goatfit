@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-HadesFit Automated Health Monitoring System
+GoatFit Automated Health Monitoring System
 Real-time vital sign monitoring with automatic emergency alerts
 """
 import asyncio
@@ -353,7 +353,7 @@ def stop_automated_monitoring():
 
 if __name__ == "__main__":
     # Test the monitoring system
-    print("🏥 HadesFit Automated Health Monitoring System")
+    print("🏥 GoatFit Automated Health Monitoring System")
     print("=" * 50)
     print("This system provides:")
     print("✅ Real-time vital sign monitoring")

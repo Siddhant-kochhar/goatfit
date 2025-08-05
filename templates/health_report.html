@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Report - GoatFit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            color: #667eea;
+        }
+        
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .report-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .report-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .ai-coaching {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .ai-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .ai-content {
+            line-height: 1.6;
+            color: #555;
+            white-space: pre-wrap;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid #667eea;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: white;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .email-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        .email-success {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+        }
+        
+        .email-error {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+            border: 2px solid #f44336;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .report-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">🐐 GoatFit</div>
+            <ul class="nav-links">
+                <li><a href="/fit">Dashboard</a></li>
+                <li><a href="/vitals">Vitals</a></li>
+                <li><a href="/health-report" class="active">Health Report</a></li>
+                <li><a href="/email-automation">📧 Email Service</a></li>
+                <li><a href="/emergency-contacts">Contacts</a></li>
+                <li><a href="/monitoring-dashboard">Monitoring</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="report-header">
+            <h1 class="report-title">🏥 Daily Health Report</h1>
+            <p class="report-subtitle">Comprehensive health analysis with AI-powered coaching</p>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Generating your personalized health report...</p>
+        </div>
+
+        <div id="report-content" style="display: none;">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">❤️</div>
+                    <div class="metric-value" id="heart-rate">--</div>
+                    <div class="metric-label">Average Heart Rate (BPM)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🚶‍♂️</div>
+                    <div class="metric-value" id="steps">--</div>
+                    <div class="metric-label">Steps Taken</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🔥</div>
+                    <div class="metric-value" id="calories">--</div>
+                    <div class="metric-label">Calories Burned</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">😴</div>
+                    <div class="metric-value" id="sleep">--</div>
+                    <div class="metric-label">Sleep Hours</div>
+                </div>
+            </div>
+
+            <div class="ai-coaching">
+                <h2 class="ai-title">🤖 AI Coaching Advice</h2>
+                <div class="ai-content" id="ai-advice">Loading your personalized coaching advice...</div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="sendEmailReport()">
+                    📧 Email Report to Contacts
+                </button>
+                <button class="btn btn-secondary" onclick="refreshReport()">
+                    🔄 Refresh Report
+                </button>
+                <button class="btn btn-secondary" onclick="downloadReport()">
+                    📄 Download PDF
+                </button>
+            </div>
+
+            <div id="email-status" class="email-status"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentReport = null;
+
+        // Load report when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHealthReport();
+        });
+
+        async function loadHealthReport() {
+            try {
+                const response = await fetch('/daily-report');
+                const data = await response.json();
+
+                if (data.success) {
+                    currentReport = data;
+                    displayReport(data);
+                } else {
+                    showError('Failed to load health report: ' + data.error);
+                }
+            } catch (error) {
+                showError('Error loading report: ' + error.message);
+            }
+        }
+
+        function displayReport(data) {
+            // Hide loading, show content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('report-content').style.display = 'block';
+
+            // Update metrics
+            const metrics = data.health_metrics;
+            document.getElementById('heart-rate').textContent = metrics.avg_heart_rate || '--';
+            document.getElementById('steps').textContent = (metrics.steps || 0).toLocaleString();
+            document.getElementById('calories').textContent = Math.round(metrics.calories_burned || 0);
+            document.getElementById('sleep').textContent = (metrics.sleep_hours || 0) + 'h';
+
+            // Update AI advice
+            document.getElementById('ai-advice').textContent = data.report.ai_advice || 'No AI advice available';
+        }
+
+        async function sendEmailReport() {
+            if (!currentReport) {
+                showEmailStatus('No report data available', 'error');
+                return;
+            }
+
+            const emailBtn = document.querySelector('.btn-primary');
+            const originalText = emailBtn.innerHTML;
+            emailBtn.innerHTML = '📧 Sending...';
+            emailBtn.disabled = true;
+
+            try {
+                const response = await fetch('/send-health-report-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        report_data: currentReport
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showEmailStatus('✅ Health report sent to all emergency contacts!', 'success');
+                } else {
+                    showEmailStatus('❌ Failed to send email: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showEmailStatus('❌ Error sending email: ' + error.message, 'error');
+            } finally {
+                emailBtn.innerHTML = originalText;
+                emailBtn.disabled = false;
+            }
+        }
+
+        function refreshReport() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('report-content').style.display = 'none';
+            document.getElementById('email-status').style.display = 'none';
+            loadHealthReport();
+        }
+
+        function downloadReport() {
+            if (!currentReport) return;
+
+            const reportText = `
+GoatFit Daily Health Report
+Generated: ${new Date().toLocaleString()}
+
+HEALTH METRICS:
+❤️ Heart Rate: ${currentReport.health_metrics.avg_heart_rate || '--'} BPM
+🚶‍♂️ Steps: ${(currentReport.health_metrics.steps || 0).toLocaleString()}
+🔥 Calories: ${Math.round(currentReport.health_metrics.calories_burned || 0)}
+😴 Sleep: ${currentReport.health_metrics.sleep_hours || 0} hours
+
+AI COACHING ADVICE:
+${currentReport.report.ai_advice || 'No advice available'}
+            `;
+
+            const blob = new Blob([reportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `goatfit-health-report-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function showEmailStatus(message, type) {
+            const statusDiv = document.getElementById('email-status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'email-status email-' + type;
+            statusDiv.style.display = 'block';
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('report-content').innerHTML = `
+                <div style="text-align: center; color: white; padding: 2rem;">
+                    <h2>⚠️ Error Loading Report</h2>
+                    <p>${message}</p>
+                    <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+                </div>
+            `;
+            document.getElementById('report-content').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

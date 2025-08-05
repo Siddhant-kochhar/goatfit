@@ -1,14 +1,15 @@
-#!/bi#!/bin/bash
+#!/bin/bash
 
 # GoatFit Health Monitoring System
 # Quick startup script
 
-echo "🏥 GoatFit - Emergency Health Monitoring System"/bash
+echo "🏥 GoatFit - Emergency Health Monitoring System"
+echo "================================================"
 
-# HadesFit Health Monitoring System
+# GoatFit Health Monitoring System
 # Clean startup script for the emergency alert system
 
-echo "� HadesFit - Emergency Health Monitoring System"
+echo "� GoatFit - Emergency Health Monitoring System"
 echo "================================================"
 
 # Check if virtual environment exists

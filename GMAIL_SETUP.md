@@ -95,6 +95,6 @@ send_heart_rate_alert('your@email.com', 'Test User', 185, 140)
 
 ---
 
-**HadesFit Gmail Setup Complete! 🎉**
+**GoatFit Gmail Setup Complete! 🎉**
 
 Your emergency alert system is now ready to protect your family's health and safety.

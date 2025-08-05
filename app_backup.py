@@ -84,34 +84,20 @@ async def send_automated_health_report(user_id: str, user_data: dict, credential
         email_body = f"""
 Hi there! 👋
 
-Daily health report for {user_data['name']}:
+Quick health update for {user_data['name']}:
 
-📊 TODAY'S PERFORMANCE:
+📊 Today's Stats:
 • Heart Rate: {health_metrics.get('avg_heart_rate', 0)} BPM
 • Steps: {health_metrics.get('steps', 0):,}
-• Calories Burned: {health_metrics.get('calories_burned', 0)}
+• Calories: {health_metrics.get('calories_burned', 0)}
 
-🎯 HEALTH STATUS: {'✅ Excellent vitals!' if health_metrics.get('avg_heart_rate', 0) > 60 else '⚠️ Monitor closely'}
+🎯 Status: {'✅ Looking good!' if health_metrics.get('avg_heart_rate', 0) > 60 else '⚠️ Keep an eye on them'}
 
-🤖 AI COACH INSIGHTS:
-{report.get('ai_advice', 'Your health metrics are within normal ranges. Keep up the good work!')}
-
-💡 QUICK SUGGESTIONS:
-• {'Stay hydrated - aim for 8 glasses of water today' if health_metrics.get('steps', 0) > 5000 else 'Take short walks every hour to boost activity'}
-• {'Great cardio performance! Consider strength training tomorrow' if health_metrics.get('avg_heart_rate', 0) > 70 else 'Light stretching or yoga could help improve circulation'}
-• {'Your calorie burn is excellent - fuel with protein-rich foods' if health_metrics.get('calories_burned', 0) > 200 else 'Small increases in daily movement can boost energy'}
-
-🎯 TOMORROW'S GOALS:
-• Target: {health_metrics.get('steps', 0) + 500:,} steps
-• Focus: {'Maintain steady heart rate during activities' if health_metrics.get('avg_heart_rate', 0) > 60 else 'Light cardio to improve circulation'}
-• Nutrition: Eat balanced meals with protein and vegetables
-
-📈 WEEKLY TREND:
-Your consistency is key to long-term health. Keep building these healthy habits!
+🤖 Quick Insight: {report.get('ai_advice', 'All systems normal')[:150]}...
 
 ---
 GoatFit Health Monitor �
-Next update: Tomorrow at the same time
+Next update: Tomorrow
         """
         
         # Send emails to all emergency contacts

@@ -1,5 +1,5 @@
 """
-MongoDB Database Models and Connection for HadesFit Health Monitoring System
+MongoDB Database Models and Connection for GoatFit Health Monitoring System
 """
 import os
 from datetime import datetime
@@ -148,6 +148,23 @@ class UserModel:
                 user["_id"] = str(user["_id"])
                 users.append(user)
             return users
+        except Exception as e:
+            print(f"❌ Error getting monitored users: {e}")
+            return []
+    
+    @staticmethod
+    async def get_all_users() -> List[Dict[str, Any]]:
+        """Get all active users"""
+        try:
+            cursor = db.users.find({"status": "active"})
+            users = []
+            async for user in cursor:
+                user["_id"] = str(user["_id"])
+                users.append(user)
+            return users
+        except Exception as e:
+            print(f"❌ Error getting all users: {e}")
+            return []
         except Exception as e:
             print(f"❌ Error getting monitored users: {e}")
             return []

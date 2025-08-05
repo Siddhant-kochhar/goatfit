@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Status - GoatFit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 255, 127, 0.3);
+        }
+
+        h1 {
+            color: #00ff7f;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #cccccc;
+            font-size: 1.1rem;
+        }
+
+        .report-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-title {
+            color: #00ff7f;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .check-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .check-btn, .history-btn {
+            background: linear-gradient(135deg, #00ff7f 0%, #00cc66 100%);
+            color: #1a1a1a;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .check-btn:hover, .history-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 127, 0.4);
+        }
+
+        .check-btn:disabled, .history-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-container {
+            display: none;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .status-success {
+            background: rgba(0, 255, 127, 0.2);
+            color: #00ff7f;
+            border: 1px solid #00ff7f;
+        }
+
+        .status-error {
+            background: rgba(255, 99, 99, 0.2);
+            color: #ff6363;
+            border: 1px solid #ff6363;
+        }
+
+        .status-warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00ff7f;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #cccccc;
+            font-size: 0.9rem;
+        }
+
+        .ai-advice {
+            background: rgba(0, 255, 127, 0.1);
+            border-left: 4px solid #00ff7f;
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin: 20px 0;
+        }
+
+        .ai-advice h4 {
+            color: #00ff7f;
+            margin-bottom: 10px;
+        }
+
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .trend-improving {
+            background: rgba(0, 255, 127, 0.2);
+            color: #00ff7f;
+        }
+
+        .trend-declining {
+            background: rgba(255, 99, 99, 0.2);
+            color: #ff6363;
+        }
+
+        .trend-stable {
+            background: rgba(108, 117, 125, 0.2);
+            color: #6c757d;
+        }
+
+        .history-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #00ff7f;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #cccccc;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ff7f;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 255, 127, 0.9);
+            color: #1a1a1a;
+            padding: 10px 15px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: #00ff7f;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <a href="/fit" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="/static/GoatFit.png" alt="GoatFit Logo" class="logo">
+            </div>
+            <h1>Report Status Checker</h1>
+            <p class="subtitle">Check your daily health reports and view historical data</p>
+        </div>
+
+        <!-- Quick Report Check -->
+        <div class="report-section">
+            <h2 class="section-title">
+                <i class="fas fa-clipboard-check"></i>
+                Quick Report Check
+            </h2>
+            <div class="check-buttons">
+                <button class="check-btn" onclick="checkReportStatus(1)">
+                    <i class="fas fa-calendar-day"></i>
+                    Check Today's Report
+                </button>
+                <button class="check-btn" onclick="checkReportStatus(3)">
+                    <i class="fas fa-calendar-week"></i>
+                    Check Last 3 Days
+                </button>
+                <button class="check-btn" onclick="checkReportStatus(7)">
+                    <i class="fas fa-calendar-alt"></i>
+                    Check Last Week
+                </button>
+            </div>
+            <div id="status-results" class="results-container"></div>
+        </div>
+
+        <!-- Historical Data -->
+        <div class="report-section">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Historical Analysis
+            </h2>
+            <div class="check-buttons">
+                <button class="history-btn" onclick="getReportHistory(7)">
+                    <i class="fas fa-history"></i>
+                    Last 7 Days
+                </button>
+                <button class="history-btn" onclick="getReportHistory(14)">
+                    <i class="fas fa-chart-area"></i>
+                    Last 2 Weeks
+                </button>
+                <button class="history-btn" onclick="getReportHistory(30)">
+                    <i class="fas fa-calendar-month"></i>
+                    Last Month
+                </button>
+            </div>
+            <div id="history-results" class="results-container"></div>
+        </div>
+    </div>
+
+    <script>
+        async function checkReportStatus(daysBack) {
+            const resultsContainer = document.getElementById('status-results');
+            resultsContainer.style.display = 'block';
+            resultsContainer.innerHTML = '<div class="loading"><div class="spinner"></div> Checking report status...</div>';
+
+            try {
+                const response = await fetch(`/check-report?days_back=${daysBack}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayReportStatus(data);
+                } else {
+                    displayError(data.error || 'Failed to check report status');
+                }
+            } catch (error) {
+                console.error('Error checking report:', error);
+                displayError('Network error while checking report status');
+            }
+        }
+
+        function displayReportStatus(data) {
+            const resultsContainer = document.getElementById('status-results');
+            const metrics = data.health_metrics || {};
+            const report = data.report || {};
+
+            let statusClass = data.report_status?.data_available ? 'status-success' : 'status-warning';
+            let statusIcon = data.report_status?.data_available ? 'fa-check-circle' : 'fa-exclamation-triangle';
+            let statusText = data.report_status?.data_available ? 'Data Available' : 'Limited Data';
+
+            const html = `
+                <div class="status-indicator ${statusClass}">
+                    <i class="fas ${statusIcon}"></i>
+                    ${statusText}
+                </div>
+                
+                <h4>Health Metrics (Last ${data.report_status?.days_checked || 1} day(s))</h4>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">${metrics.steps || 0}</div>
+                        <div class="metric-label">Steps</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${metrics.calories_burned || 0}</div>
+                        <div class="metric-label">Calories</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${metrics.avg_heart_rate || 0}</div>
+                        <div class="metric-label">Avg Heart Rate</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${metrics.sleep_hours || 0}</div>
+                        <div class="metric-label">Sleep Hours</div>
+                    </div>
+                </div>
+
+                ${report.ai_advice ? `
+                <div class="ai-advice">
+                    <h4><i class="fas fa-robot"></i> AI Coaching Advice</h4>
+                    <p>${report.ai_advice}</p>
+                </div>
+                ` : ''}
+
+                <p><strong>Last Check:</strong> ${data.report_status?.last_check || 'Unknown'}</p>
+                <p><strong>Google Fit Connected:</strong> ${data.report_status?.google_fit_connected ? '✅ Yes' : '❌ No'}</p>
+            `;
+
+            resultsContainer.innerHTML = html;
+        }
+
+        async function getReportHistory(days) {
+            const resultsContainer = document.getElementById('history-results');
+            resultsContainer.style.display = 'block';
+            resultsContainer.innerHTML = '<div class="loading"><div class="spinner"></div> Loading historical data...</div>';
+
+            try {
+                const response = await fetch(`/report-history?days=${days}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayHistoryData(data);
+                } else {
+                    displayHistoryError(data.error || 'Failed to get history data');
+                }
+            } catch (error) {
+                console.error('Error getting history:', error);
+                displayHistoryError('Network error while getting history data');
+            }
+        }
+
+        function displayHistoryData(data) {
+            const resultsContainer = document.getElementById('history-results');
+            const trends = data.trends || {};
+
+            let trendsHtml = '';
+            if (Object.keys(trends).length > 0) {
+                trendsHtml = '<h4>Trends Analysis</h4><div class="metrics-grid">';
+                for (const [metric, trend] of Object.entries(trends)) {
+                    const trendClass = `trend-${trend.trend}`;
+                    const trendIcon = trend.trend === 'improving' ? 'fa-arrow-up' : 
+                                     trend.trend === 'declining' ? 'fa-arrow-down' : 'fa-minus';
+                    
+                    trendsHtml += `
+                        <div class="metric-card">
+                            <div class="metric-value">${trend.percent_change}%</div>
+                            <div class="metric-label">
+                                ${metric.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                <div class="trend-indicator ${trendClass}">
+                                    <i class="fas ${trendIcon}"></i>
+                                    ${trend.trend}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                trendsHtml += '</div>';
+            }
+
+            let historyHtml = '';
+            if (data.historical_data && data.historical_data.length > 0) {
+                historyHtml = '<h4>Daily Data</h4><div class="history-container">';
+                data.historical_data.forEach(day => {
+                    historyHtml += `
+                        <div class="history-item">
+                            <strong>${day.date}</strong><br>
+                            Steps: ${day.steps || 0} | 
+                            Calories: ${day.calories_burned || 0} | 
+                            Heart Rate: ${day.avg_heart_rate || 0} BPM | 
+                            Sleep: ${day.sleep_hours || 0}h
+                        </div>
+                    `;
+                });
+                historyHtml += '</div>';
+            }
+
+            const html = `
+                <div class="status-indicator status-success">
+                    <i class="fas fa-chart-line"></i>
+                    ${data.days_available} of ${data.days_requested} days available
+                </div>
+                ${trendsHtml}
+                ${historyHtml}
+                <p><strong>Generated:</strong> ${data.generated_at}</p>
+            `;
+
+            resultsContainer.innerHTML = html;
+        }
+
+        function displayError(error) {
+            const resultsContainer = document.getElementById('status-results');
+            resultsContainer.innerHTML = `
+                <div class="status-indicator status-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Error: ${error}
+                </div>
+            `;
+        }
+
+        function displayHistoryError(error) {
+            const resultsContainer = document.getElementById('history-results');
+            resultsContainer.innerHTML = `
+                <div class="status-indicator status-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Error: ${error}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

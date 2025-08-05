@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Email Service - GoatFit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            color: #667eea;
+        }
+        
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .service-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .service-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .service-description {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .status-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-running {
+            background-color: #10b981;
+        }
+        
+        .status-stopped {
+            background-color: #ef4444;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .btn-info {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .schedule-info {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .schedule-times {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .time-badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .users-list {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1rem;
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-status {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-inactive {
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .message {
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-weight: 600;
+        }
+        
+        .message-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .message-error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        
+        .message-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">🐐 GoatFit</div>
+            <ul class="nav-links">
+                <li><a href="/fit">Dashboard</a></li>
+                <li><a href="/vitals">Vitals</a></li>
+                <li><a href="/health-report">Health Report</a></li>
+                <li><a href="/monitoring-dashboard">Monitoring</a></li>
+                <li><a href="/email-automation" class="active">Email Service</a></li>
+                <li><a href="/emergency-contacts">Contacts</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="service-header">
+            <h1 class="service-title">📧 Automated Email Service</h1>
+            <p class="service-description">
+                Automatically send daily health reports to your emergency contacts at scheduled times
+            </p>
+        </div>
+
+        <div class="status-card">
+            <h2>🔄 Service Status</h2>
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Checking service status...</span>
+            </div>
+            <p><strong>Current Time:</strong> <span id="currentTime"></span></p>
+            <p><strong>Total Users:</strong> <span id="totalUsers">Loading...</span></p>
+        </div>
+
+        <div class="control-buttons">
+            <button class="btn btn-success" onclick="startService()">
+                🚀 Start Service
+            </button>
+            <button class="btn btn-danger" onclick="stopService()">
+                🛑 Stop Service
+            </button>
+            <button class="btn btn-info" onclick="testEmail()">
+                📧 Send Test Email
+            </button>
+            <button class="btn btn-primary" onclick="refreshStatus()">
+                🔄 Refresh Status
+            </button>
+        </div>
+
+        <div class="schedule-info">
+            <h2>⏰ Email Schedule</h2>
+            <p>Automated health reports are sent at the following times:</p>
+            <div class="schedule-times">
+                <span class="time-badge">🌅 08:00 AM Daily</span>
+                <span class="time-badge">🌙 08:00 PM Daily</span>
+            </div>
+            <p style="text-align: center; margin-top: 1rem; color: #666;">
+                Reports include health metrics, AI coaching advice, and health status assessments
+            </p>
+        </div>
+
+        <div class="users-list">
+            <h2>👥 Scheduled Users</h2>
+            <div id="usersList" class="loading">
+                Loading user information...
+            </div>
+        </div>
+
+        <div id="messageArea"></div>
+    </div>
+
+    <script>
+        let serviceStatus = {};
+
+        async function loadServiceStatus() {
+            try {
+                const response = await fetch('/email-service/status');
+                serviceStatus = await response.json();
+                
+                updateStatusDisplay();
+                
+            } catch (error) {
+                console.error('Error loading service status:', error);
+                showMessage('Failed to load service status', 'error');
+            }
+        }
+
+        async function loadUserSchedule() {
+            try {
+                const response = await fetch('/email-service/schedule');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayUsersList(data.users, data.total_users);
+                } else {
+                    showMessage('Failed to load user schedule', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error loading user schedule:', error);
+                showMessage('Failed to load user information', 'error');
+            }
+        }
+
+        function updateStatusDisplay() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const currentTime = document.getElementById('currentTime');
+            const totalUsers = document.getElementById('totalUsers');
+            
+            if (serviceStatus.automated_email_active) {
+                statusDot.className = 'status-dot status-running';
+                statusText.textContent = '✅ Service Running - Emails will be sent at scheduled times';
+            } else {
+                statusDot.className = 'status-dot status-stopped';
+                statusText.textContent = '❌ Service Stopped - No automated emails will be sent';
+            }
+            
+            currentTime.textContent = serviceStatus.current_time || 'Unknown';
+            totalUsers.textContent = serviceStatus.total_scheduled_users || '0';
+        }
+
+        function displayUsersList(users, totalCount) {
+            const usersList = document.getElementById('usersList');
+            
+            if (!users || users.length === 0) {
+                usersList.innerHTML = '<p style="text-align: center; color: #666;">No users scheduled for automated emails</p>';
+                return;
+            }
+            
+            let html = `<p><strong>Total Users:</strong> ${totalCount}</p>`;
+            
+            users.forEach(user => {
+                const isActive = user.has_credentials && user.emergency_contacts_count > 0;
+                html += `
+                    <div class="user-item">
+                        <div class="user-info">
+                            <strong>${user.name}</strong><br>
+                            <small>${user.email}</small>
+                        </div>
+                        <div class="user-status">
+                            <span>📧 ${user.emergency_contacts_count} contacts</span>
+                            <span class="status-badge ${isActive ? 'status-active' : 'status-inactive'}">
+                                ${isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            usersList.innerHTML = html;
+        }
+
+        async function startService() {
+            try {
+                const response = await fetch('/email-service/start', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('✅ Automated Email Service started successfully!', 'success');
+                    loadServiceStatus();
+                } else {
+                    showMessage('❌ ' + data.message, 'error');
+                }
+                
+            } catch (error) {
+                showMessage('❌ Failed to start service: ' + error.message, 'error');
+            }
+        }
+
+        async function stopService() {
+            try {
+                const response = await fetch('/email-service/stop', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('🛑 Automated Email Service stopped', 'info');
+                    loadServiceStatus();
+                } else {
+                    showMessage('❌ ' + data.message, 'error');
+                }
+                
+            } catch (error) {
+                showMessage('❌ Failed to stop service: ' + error.message, 'error');
+            }
+        }
+
+        async function testEmail() {
+            try {
+                showMessage('📧 Sending test email...', 'info');
+                
+                const response = await fetch('/email-service/test-send', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('✅ Test email sent successfully to your emergency contacts!', 'success');
+                } else {
+                    showMessage('❌ Failed to send test email: ' + data.error, 'error');
+                }
+                
+            } catch (error) {
+                showMessage('❌ Error sending test email: ' + error.message, 'error');
+            }
+        }
+
+        function refreshStatus() {
+            showMessage('🔄 Refreshing status...', 'info');
+            loadServiceStatus();
+            loadUserSchedule();
+        }
+
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('messageArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            messageDiv.textContent = message;
+            
+            messageArea.innerHTML = '';
+            messageArea.appendChild(messageDiv);
+            
+            // Auto remove message after 5 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        // Update current time every second
+        setInterval(() => {
+            document.getElementById('currentTime').textContent = new Date().toLocaleString();
+        }, 1000);
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadServiceStatus();
+            loadUserSchedule();
+            
+            // Refresh status every 30 seconds
+            setInterval(() => {
+                loadServiceStatus();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

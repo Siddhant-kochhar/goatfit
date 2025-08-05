@@ -136,3 +136,5 @@ GoatFit/
     ├── user_registration.html # First-time user setup
     └── ...                # Other HTML templates
 ```
+
+Try visiting http://localhost:8000/email-service/test-send again 
